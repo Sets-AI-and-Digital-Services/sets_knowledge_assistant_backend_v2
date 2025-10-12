@@ -1,7 +1,54 @@
+# --- Core Web ---
 fastapi
 uvicorn[standard]
+python-multipart
+aiofiles
+
+# --- Config & Environment ---
 pydantic-settings
+python-dotenv
+
+# --- Database ---
 motor
+
+# --- Auth & Security ---
 passlib[bcrypt]
 email-validator
 python-jose[cryptography]
+bcrypt==4.0.1
+
+# --- RAG Engine ---
+# Keep chroma installed if you may switch later; FAISS will be default
+chromadb
+sentence-transformers
+langchain==0.3.25
+langchain-community==0.3.24
+google-genai
+
+# --- Document Loading & Parsing ---
+unstructured==0.17.2
+unstructured[all-docs]
+PyMuPDF
+pdfplumber
+pytesseract
+pillow
+python-docx
+python-pptx
+openpyxl
+xlrd
+pandas
+
+# --- AI / ML Utilities ---
+torch==2.7.1
+transformers
+einops
+numpy
+
+# --- Developer Tools ---
+ruff
+isort
+black
+tqdm
+
+# --- Vector (FREE, local, fast) ---
+faiss-cpu==1.12.0

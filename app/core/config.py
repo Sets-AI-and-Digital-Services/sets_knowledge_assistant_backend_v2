@@ -1,3 +1,5 @@
+# app/core/config.py
+from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from urllib.parse import urlparse
 import os
@@ -9,19 +11,19 @@ class Settings(BaseSettings):
     APP_DESCRIPTION: str | None = None
     APP_AUTHOR: str | None = None
 
-    # DB – accept both old and new var names
+    # DB
     MONGODB_URI: str = ""
-    MONGODB_CONNECTION_STRING: str = ""  # legacy name (v1)
+    MONGODB_CONNECTION_STRING: str = ""  # legacy
     DB_NAME: str | None = None
 
-    # Collections (keep same names as v1)
+    # Collections
     USERS_COLLECTION: str = "users"
     SESSIONS_COLLECTION: str = "sessions"
     QA_COLLECTION: str = "qa_history"
     FEEDBACK_COLLECTION: str = "feedback"
     FILES_COLLECTION: str = "files"
 
-    # Auth (if you added JWT)
+    # Auth
     SECRET_KEY: str = "CHANGE_ME"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
@@ -32,14 +34,13 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-    # derive final connection string & db
+    # helpers
     @property
     def mongo_uri(self) -> str:
         return self.MONGODB_URI or self.MONGODB_CONNECTION_STRING
 
     @property
     def mongo_db_name(self) -> str | None:
-        # Prefer explicit DB_NAME; otherwise parse from URI path (e.g. .../chat_db)
         if self.DB_NAME:
             return self.DB_NAME
         try:
@@ -50,8 +51,10 @@ class Settings(BaseSettings):
             pass
         return None
 
+# ✅ global singleton
 settings = Settings()
 
-# sanity: if uri is missing, allow overriding via env at runtime
-if not settings.mongo_uri:
-    settings.MONGODB_URI = os.getenv("MONGODB_URI", "")
+# ✅ cached getter (for imports in app.core.__init__)
+@lru_cache
+def get_settings() -> Settings:
+    return settings

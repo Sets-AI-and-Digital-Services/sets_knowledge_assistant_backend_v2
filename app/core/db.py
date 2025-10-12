@@ -31,3 +31,10 @@ def col_feedback():
 
 def col_files():
     return get_db()[settings.FILES_COLLECTION]
+
+# Compatibility wrapper for async usage in scripts (like seeding)
+async def get_database():
+    """
+    Async-compatible version for scripts such as seed_admin.py.
+    """
+    return get_db()

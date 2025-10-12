@@ -1,32 +1,60 @@
-from passlib.hash import bcrypt
-from fastapi import HTTPException, status, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+# app/services/auth_service.py
+from typing import Any, Dict
+
+from fastapi import Depends, HTTPException, status
+from jose import JWTError
 from bson import ObjectId
+
+from app.core.config import get_settings
 from app.core.db import col_users
-from app.core.security import create_access_token, decode_token
+from app.core.security import (
+    oauth2_scheme,
+    verify_password,
+    create_access_token,
+    decode_token,
+)
 
-http_bearer = HTTPBearer(auto_error=False)
+settings = get_settings()
 
-async def authenticate(email: str, password: str) -> dict:
-    user = await col_users().find_one({"email": email})
-    if not user or not bcrypt.verify(password, user.get("password_hash", "")):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    payload = {"sub": str(user["_id"]), "email": user["email"], "role": user.get("role", "user")}
-    token = create_access_token(payload)
-    return {"token": token, "user": user}
+# -------- main function used by /v1/auth/login --------
+async def authenticate_user(email: str, password: str) -> Dict[str, Any]:
+    doc = await col_users().find_one({"email": email})
+    if not doc:
+        raise HTTPException(status_code=400, detail="Invalid credentials")
+    if not verify_password(password, doc.get("password_hash", "")):
+        raise HTTPException(status_code=400, detail="Invalid credentials")
 
-async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(http_bearer)) -> dict:
-    if not credentials:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
-    data = decode_token(credentials.credentials)
-    if not data:
+    user_id = str(doc.get("_id"))
+    role = doc.get("role", "user")
+
+    token = create_access_token({"sub": user_id, "role": role})
+    return {
+        "token": token,
+        "user": {"id": user_id, "email": doc.get("email"), "role": role},
+    }
+
+# -------- FastAPI dependencies used by other routes --------
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> Dict[str, Any]:
+    payload = decode_token(token)
+    if not payload:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
-    user = await col_users().find_one({"_id": ObjectId(data["sub"])})
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
-    return user
 
-async def require_admin(user: dict = Depends(get_current_user)) -> dict:
-    if user.get("role", "user") != "admin":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin privileges required")
+    user_id = payload.get("sub")
+    if not user_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
+
+    try:
+        oid = ObjectId(user_id)
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid user id")
+
+    doc = await col_users().find_one({"_id": oid})
+    if not doc:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found")
+
+    return doc
+
+async def require_admin(user: Dict[str, Any] = Depends(get_current_user)) -> Dict[str, Any]:
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin only")
     return user

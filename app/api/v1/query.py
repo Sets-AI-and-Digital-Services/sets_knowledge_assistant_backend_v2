@@ -8,7 +8,7 @@ class AskIn(BaseModel):
     session_id: str
     query: str
 
-router = APIRouter(prefix="/sets/v1", tags=["query"])
+router = APIRouter()
 
 @router.post("/query")
 async def ask(payload: AskIn, user=Depends(get_current_user)):

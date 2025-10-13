@@ -14,7 +14,7 @@ from starlette.concurrency import run_in_threadpool
 from app.services.auth_service import get_current_user
 from app.core.upload_settings import UploadSettings
 
-router = APIRouter(prefix="/sets/v1", tags=["upload"])
+router = APIRouter()
 settings = UploadSettings()
 
 SAFE_NAME = re.compile(r"[^A-Za-z0-9._-]+")

@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.core.dependencies import get_rag_system, check_uploaded_files_exist
 from app.services.auth_service import get_current_user
 
-router = APIRouter(prefix="/sets/v1", tags=["process"])
+router = APIRouter()
 
 @router.post("/process")
 async def process_documents(session_id: str, user=Depends(get_current_user)):

@@ -1,4 +1,7 @@
 # app/main.py
+from dotenv import load_dotenv
+load_dotenv(dotenv_path=".env", override=True)  # <-- ensure .env is loaded very early
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api import router as api_router
@@ -7,10 +10,9 @@ import uvicorn
 
 app = FastAPI(title="SETS Chatbot", version="1.0")
 
-# Optional: allow your frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # tighten later
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -17,38 +17,37 @@ email-validator
 python-jose[cryptography]
 bcrypt==4.0.1
 
-# --- RAG Engine ---
-# Keep chroma installed if you may switch later; FAISS will be default
-chromadb
-sentence-transformers
+# --- RAG Engine (Free / Local) ---
+faiss-cpu==1.12.0
+sentence-transformers>=2.6.1
 langchain==0.3.25
 langchain-community==0.3.24
-google-genai
 
-# --- Document Loading & Parsing ---
-unstructured==0.17.2
-unstructured[all-docs]
+# --- Optional (future switch or embedding alternatives) ---
+# chromadb              # keep commented unless you need remote Chroma
+# google-genai          # paid, disable for free mode
+
+# --- Document Loading & Parsing (Light but Complete) ---
 PyMuPDF
-pdfplumber
-pytesseract
-pillow
 python-docx
 python-pptx
 openpyxl
 xlrd
 pandas
+pillow                # for image OCR if you ever re-enable pytesseract
+pdfplumber            # still lightweight
 
-# --- AI / ML Utilities ---
-torch==2.7.1
+# --- Optional OCR (disabled for speed) ---
+# pytesseract
+# unstructured==0.17.2
+# unstructured[all-docs]
+
+# --- ML / AI Utilities ---
+torch>=2.3.0          # compatible with sentence-transformers CPU
 transformers
 einops
 numpy
 
-# --- Developer Tools ---
-ruff
-isort
-black
-tqdm
-
-# --- Vector (FREE, local, fast) ---
-faiss-cpu==1.12.0
+# --- New Additions (needed for new free RAG pipeline) ---
+requests              # for local LLM (Ollama) HTTP call
+tqdm                  # progress bar (optional, keep)

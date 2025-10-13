@@ -5,7 +5,7 @@ from datetime import datetime
 from app.core.db import col_sessions
 from app.services.auth_service import get_current_user
 
-router = APIRouter(prefix="/sets/v1", tags=["sessions"])
+router = APIRouter()
 
 @router.post("/create_session_id", status_code=status.HTTP_201_CREATED)
 async def create_session_id(user=Depends(get_current_user)):

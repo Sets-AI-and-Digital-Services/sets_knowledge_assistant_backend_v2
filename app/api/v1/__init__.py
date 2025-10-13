@@ -12,9 +12,9 @@ from .query import router as query_router
 router = APIRouter()
 router.include_router(auth_router, prefix="/auth", tags=["auth"])
 router.include_router(users_router,   prefix="/users",   tags=["users"])
-router.include_router(sessions_router,prefix="/sessions",tags=["sessions"])
-router.include_router(upload_router,  prefix="/upload",  tags=["upload"])
-router.include_router(process_router, prefix="/process", tags=["process"])
-router.include_router(query_router,   prefix="/query",   tags=["query"])
+router.include_router(sessions_router,tags=["sessions"])
+router.include_router(upload_router,  tags=["upload"])
+router.include_router(process_router,  tags=["process"])
+router.include_router(query_router,     tags=["query"])
 
 __all__ = ["router"]

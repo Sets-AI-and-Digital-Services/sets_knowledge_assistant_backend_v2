@@ -16,7 +16,7 @@ from app.core.security import (
 
 settings = get_settings()
 
-# -------- main function used by /v1/auth/login --------
+# -------- main function used by /auth/login --------
 async def authenticate_user(email: str, password: str) -> Dict[str, Any]:
     doc = await col_users().find_one({"email": email})
     if not doc:

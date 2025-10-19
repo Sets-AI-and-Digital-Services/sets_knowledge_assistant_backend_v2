@@ -9,11 +9,11 @@ router = APIRouter()
 
 @router.post("/login", response_model=TokenOut)
 async def login(
-    username: str = Form(...),
+    email: str = Form(...),
     password: str = Form(...)
 ):
-    # OAuth2 uses "username", but we treat it as email
-    res = await authenticate_user(username, password)
+    # OAuth2 uses "email", but we treat it as email
+    res = await authenticate_user(email, password)
     return {"access_token": res["token"], "token_type": "bearer"}
 
 
